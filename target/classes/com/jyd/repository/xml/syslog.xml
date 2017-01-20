@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap>
+	<typeAlias alias="operlog" type="com.jyd.beans.OperLog" />
+	
+		
+    
+    <select id="listLogByPage_count" parameterClass="operlog" resultClass="int">
+	    <![CDATA[
+	         SELECT COUNT(1)  FROM jyd_syslog  WHERE 1=1
+	    ]]>
+	    
+	    <dynamic>
+			<isNotEmpty prepend="and" property="operUserName">
+				(operUserName like '%$operUserName$%' OR operUserId like '%$operUserName$%'  OR operShortCode  like '%$operUserName$%' OR
+				 operFuncName like '%$operUserName$%' OR operIp like '%$operUserName$%' OR operOrderNum like '%$operUserName$%')
+			</isNotEmpty>
+		</dynamic>
+    </select>
+    
+	 <select id="listLogByPage" parameterClass="operlog" resultClass="operlog">
+	    <![CDATA[
+	         SELECT *  FROM jyd_syslog  WHERE 1 =1
+	    ]]>
+	    
+	    <dynamic>
+			<isNotEmpty prepend="and" property="operUserName">
+				(operUserName like '%$operUserName$%' OR operUserId like '%$operUserName$%'  OR operShortCode  like '%$operUserName$%' OR
+				 operFuncName like '%$operUserName$%' OR operIp like '%$operUserName$%' OR operOrderNum like '%$operUserName$%')
+			</isNotEmpty>
+		</dynamic>
+		
+		<![CDATA[
+	          ORDER  BY id desc
+	    ]]>
+		<dynamic prepend="">
+			<isNotNull property="start">
+				<isNotNull property="pageSize">
+					limit #start#, #pageSize#
+				</isNotNull>
+			</isNotNull>
+		</dynamic>
+    </select>
+    
+	<insert id="insert_syslog" parameterClass="operlog">
+	    <![CDATA[
+	         insert jyd_syslog(id,operUserName,operUserId,operUserNum,operShortCode,operFuncName,operIp,operOrderNum)
+	         values(#id#,#operUserName#,#operUserId#,#operUserNum#,#operShortCode#,#operFuncName#,#operIp#,#operOrderNum#)
+	    ]]>
+	</insert>
+	
+</sqlMap>

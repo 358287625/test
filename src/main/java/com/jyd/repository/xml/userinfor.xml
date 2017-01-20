@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap>
+	<typeAlias alias="userinfor" type="com.jyd.beans.UserInfor" />
+	<typeAlias alias="userpermission" type="com.jyd.beans.UserPermission" />
+	
+		
+    <select id="countallUser" resultClass="int">
+	    <![CDATA[
+	         SELECT COUNT(1)  FROM jyd_userinfor  
+	    ]]>
+    </select>
+    
+    
+    <select id="getUserByName" parameterClass="userinfor" resultClass="userinfor">
+	    <![CDATA[
+	         SELECT *  FROM jyd_userinfor  WHERE loginName=#loginName# AND status =0
+	    ]]>
+	      <dynamic>
+			<isNotEmpty prepend="and" property="pwd">
+					pwd =#pwd#
+			</isNotEmpty>
+		</dynamic>
+		<![CDATA[
+	         LIMIT 1
+	    ]]>
+    </select>
+    
+    <select id="getUserInforById" parameterClass="userinfor" resultClass="userinfor">
+	    <![CDATA[
+	         SELECT *  FROM jyd_userinfor  WHERE  id !="1322d022-a232-45f1-b1bf-9507ab2a95b6" AND id=#id# 
+	    ]]>
+    </select>
+    
+	 <select id="listPermissionByUserId" parameterClass="userinfor" resultClass="string">
+	    <![CDATA[
+	         SELECT permissionId  FROM jyd_user_permission  WHERE  userId=#id#
+	    ]]>
+    </select>
+    
+    <select id="listUserInforByPage_count" parameterClass="userinfor" resultClass="int">
+	    <![CDATA[
+	         SELECT COUNT(1)  FROM jyd_userinfor  WHERE id !="1322d022-a232-45f1-b1bf-9507ab2a95b6" AND status =0
+	    ]]>
+	    
+	    <dynamic>
+			<isNotEmpty prepend="and" property="name">
+				(shortCode like '%$name$%' OR name like '%$name$%' OR  phone like '%$name$%'  OR identityCard  like '%$name$%' OR
+				 loginName  like '%$name$%' OR companyName like '%$name$%')
+			</isNotEmpty>
+		</dynamic>
+    </select>
+    
+	 <select id="listUserInforByPage" parameterClass="userinfor" resultClass="userinfor">
+	    <![CDATA[
+	         SELECT *  FROM jyd_userinfor  WHERE id !="1322d022-a232-45f1-b1bf-9507ab2a95b6" AND status =0
+	    ]]>
+	    
+	    <dynamic>
+			<isNotEmpty prepend="and" property="name">
+				(shortCode like '%$name$%' OR name like '%$name$%' OR  phone like '%$name$%'  OR identityCard  like '%$name$%' OR
+				 loginName  like '%$name$%' OR companyName like '%$name$%')
+			</isNotEmpty>
+		</dynamic>
+		
+		<![CDATA[
+	          ORDER  BY id desc
+	    ]]>
+		<dynamic prepend="">
+			<isNotNull property="start">
+				<isNotNull property="pageSize">
+					limit #start#, #pageSize#
+				</isNotNull>
+			</isNotNull>
+		</dynamic>
+    </select>
+    
+    
+    <delete id="del_user" parameterClass="userinfor">
+     <![CDATA[
+	         update jyd_userinfor  SET status =1 ,pwd='12345678' WHERE id !="1322d022-a232-45f1-b1bf-9507ab2a95b6" AND id= #id#
+	    ]]>
+	</delete> 
+	
+  
+	<insert id="insert_user" parameterClass="userinfor">
+	    <![CDATA[
+	         insert jyd_userinfor(id,name,sex,phone,identityCard,loginName,pwd,num,shortCode,companyName,companyId,mwpwd)
+	         values(#id#,#name#,#sex#,#phone#,#identityCard#,#loginName#,#pwd#,#num#,#shortCode#,#companyName#,#companyId#,#mwpwd#)
+	    ]]>
+	</insert>
+	
+	<update id="edit_user" parameterClass="userinfor">
+    <![CDATA[
+         update jyd_userinfor
+         set shortCode=#shortCode#,name=#name#,sex=#sex#,phone=#phone#,identityCard=#identityCard#,pwd=#pwd#,mwpwd=#mwpwd#,utime=now()
+         where id !="1322d022-a232-45f1-b1bf-9507ab2a95b6" AND id=#id#
+    ]]>
+	</update>
+	
+	
+</sqlMap>

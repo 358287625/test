@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap>
+	<typeAlias alias="userpermission" type="com.jyd.beans.UserPermission" />
+	
+	<insert id="insert_userpermission" parameterClass="userpermission">
+    <![CDATA[
+         insert jyd_user_permission(id,userId,permissionId)
+         values(#id#,#userId#,#permissionId#)
+    ]]>
+	</insert>
+	
+	 <select id="list_userpermission" parameterClass="userpermission" resultClass="userpermission">
+	    <![CDATA[
+	         SELECT *  FROM jyd_user_permission  WHERE userId= #userId#
+	    ]]>
+    </select>
+    
+	<delete id="del_userpermission_" parameterClass="string">
+     <![CDATA[
+	         DELETE FROM  jyd_user_permission WHERE userId !="1322d022-a232-45f1-b1bf-9507ab2a95b6" AND userId= #userId#
+	    ]]>
+	</delete> 
+</sqlMap>

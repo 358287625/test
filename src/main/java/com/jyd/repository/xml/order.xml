@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap>
+	<typeAlias alias="order" type="com.jyd.beans.Order" />
+	<typeAlias alias="orderitem" type="com.jyd.beans.OrderItem" />
+    
+        <select id="getOrderById" parameterClass="order" resultClass="order" >
+	    <![CDATA[
+	         SELECT *  FROM jyd_order  WHERE id=#id#  ORDER BY bdid DESC
+	    ]]>
+    </select>
+    
+        <select id="getOrderItemByNum" parameterClass="order" resultClass="orderitem">
+	    <![CDATA[
+	          SELECT *  FROM jyd_order_item  WHERE code=#orderNum# ORDER BY bdid ASC
+	    ]]>
+    </select>
+    
+     <select id="getOrderNum" resultClass="int">
+	    <![CDATA[
+	         SELECT num  FROM jyd_order_num  WHERE nyr=DATE(NOW())
+	    ]]>
+    </select>
+	<insert id="insertOrderNum" >
+	    <![CDATA[
+	         insert jyd_order_num(num,nyr) values("2",DATE(NOW()))
+	    ]]>
+	</insert>
+	
+	<update id="incOrderNum" >
+    <![CDATA[
+         update jyd_order_num  set num=num+1 where nyr=DATE(NOW())
+    ]]>
+	</update>
+	
+  
+	<insert id="addOrder" parameterClass="order" >
+	    <![CDATA[
+	         insert jyd_order(id,orderNum,total,orderStatus,payStatus,userName,userNum,userShortCode,userId,companyName,
+	         customerName,customerNum,customerShortCode,customerId,customerCompanyName,customerPhone) 
+	         values(#id#,#orderNum#,#total#,#orderStatus#,#payStatus#,#userName#,#userNum#,#userShortCode#,#userId#,#companyName#,
+	         #customerName#,#customerNum#,#customerShortCode#,#customerId#,#customerCompanyName#,#customerPhone#)
+	    ]]>
+	</insert>
+	<update id="updateOrder" parameterClass="order">
+    <![CDATA[
+         update jyd_order  set total=#total# ,companyName=#companyName#,
+         customerName=#customerName#,customerNum=#customerNum#,customerShortCode=#customerShortCode#,customerId=#customerId#,customerCompanyName=#customerCompanyName#,customerPhone=#customerPhone#
+         ,utime=now() where id=#id#
+    ]]>
+	</update>
+	
+  
+	<insert id="addOrderItem"  parameterClass="orderitem" >
+	    <![CDATA[
+	     insert jyd_order_item(id,code,name,price,num,discount,total,file_size,unit,spec,KCP,tp,memo) 
+	         values(#id#,#code#,#name#,#price#,#num#,#discount#,#total#,#file_size#,#unit#,#spec#,#KCP#,#tp#,#memo#)
+	    ]]>
+	</insert>
+	
+	<update id="updateOrderItem"  parameterClass="orderitem">
+    <![CDATA[
+         update jyd_order_item  set name=#name#,memo=#memo#,price=#price#,file_size=#file_size#,unit=#unit#,spec=#spec#,KCP=#KCP#,tp=#tp#,num=#num#,discount=#discount#,total=#total#,utime=NOW() where id=#id#
+    ]]>
+	</update>
+	
+	<delete id="deleteOrder" parameterClass="order">
+     <![CDATA[
+	         DELETE FROM  jyd_order WHERE id= #id# 
+	    ]]>
+	</delete> 
+	
+	<delete id="deleteOrderItem" parameterClass="orderitem">
+     <![CDATA[
+	         DELETE FROM  jyd_order_item WHERE id= #id# 
+	    ]]>
+	</delete> 
+	
+	<delete id="delItemByOrderNum" parameterClass="order">
+     <![CDATA[
+	         DELETE FROM  jyd_order_item WHERE code= #orderNum# 
+	    ]]>
+	</delete>
+	
+	<update id="updateOrderPayStatus" parameterClass="order">
+    <![CDATA[
+         update jyd_order  set payStatus=#payStatus#,payMemo=#payMemo#,utime=now() where id=#id#
+    ]]>
+	</update>
+	
+	<update id="updateOrderStatus" parameterClass="order">
+    <![CDATA[
+         update jyd_order  set orderStatus=#orderStatus#,cancelMemo=#cancelMemo#,utime=now() where id=#id#
+    ]]>
+	</update>
+	
+	<!-- 客户名称  客户简码  产品名称   接件单号   下单时间从 收款情况  单据状态 -->
+	 <select id="listOrderByPage_count" parameterClass="order" resultClass="int">
+	    <![CDATA[
+	         SELECT  COUNT(DISTINCT(orderNum))   FROM jyd_order ord  LEFT JOIN jyd_order_item item ON ord.orderNum=item.code  WHERE 1=1
+	    ]]>
+	    
+	    <dynamic>
+	    
+	   		 <isNotEmpty prepend="and" property="userNum">
+	   			ord.orderStatus =#userNum#
+			</isNotEmpty>
+			
+			<isNotEmpty prepend="and" property="customerId">
+				<isEqual property="customerId" compareValue="0"> 
+		 			ord.payStatus IN ("0","2")
+		 		</isEqual>
+	   			<isEqual property="customerId" compareValue="1"> 
+		 			ord.payStatus =#customerId#
+		 		</isEqual>
+			</isNotEmpty>
+			
+	   		<isNotEmpty prepend="and" property="userName">
+	   			item.name like '%$userName$%'
+			</isNotEmpty>
+	    
+	    	<isNotEmpty prepend="and" property="customerName">
+	    		ord.customerName like '%$customerName$%'
+			</isNotEmpty>
+			
+		<!-- 	<isNotEmpty prepend="and" property="customerShortCode">
+				item.customerShortCode like '$customerShortCode$%'
+			</isNotEmpty> -->
+			
+			<isNotEmpty prepend="and" property="startTime">
+				<![CDATA[ord.ctime>=#startTime#]]>
+			</isNotEmpty>
+			
+			<isNotEmpty prepend="and" property="endTime">
+				<![CDATA[ord.ctime <=#endTime#]]>
+			</isNotEmpty>
+			
+			<isNotEmpty prepend="and" property="orderNum">
+				item.code like '$orderNum$%'
+			</isNotEmpty>
+			
+		</dynamic>
+    </select>
+    
+	 <select id="listOrderByPage" parameterClass="order" resultClass="order">
+	    <![CDATA[
+	         SELECT ord.* FROM jyd_order ord  LEFT JOIN jyd_order_item item ON ord.orderNum=item.code  WHERE 1=1
+	    ]]>
+	    
+	   <dynamic>
+	    
+	   		 <isNotEmpty prepend="and" property="userNum">
+	   			ord.orderStatus =#userNum#
+			</isNotEmpty>
+			
+			<isNotEmpty prepend="and" property="customerId">
+	   			<isEqual property="customerId" compareValue="0"> 
+		 			ord.payStatus IN ("0","2")
+		 		</isEqual>
+	   			<isEqual property="customerId" compareValue="1"> 
+		 			ord.payStatus =#customerId#
+		 		</isEqual>
+			</isNotEmpty>
+			
+	   		<isNotEmpty prepend="and" property="userName">
+	   			item.name like '%$userName$%'
+			</isNotEmpty>
+	    
+	    	<isNotEmpty prepend="and" property="customerName">
+	    		ord.customerName like '%$customerName$%'
+			</isNotEmpty>
+			
+		<!-- 	<isNotEmpty prepend="and" property="customerShortCode">
+				item.customerShortCode like '$customerShortCode$%'
+			</isNotEmpty> -->
+			
+			<isNotEmpty prepend="and" property="startTime">
+				<![CDATA[ord.ctime>=#startTime#]]>
+			</isNotEmpty>
+			
+			<isNotEmpty prepend="and" property="endTime">
+				<![CDATA[ord.ctime <=#endTime#]]>
+			</isNotEmpty>
+			
+			<isNotEmpty prepend="and" property="orderNum">
+				item.code like '$orderNum$%'
+			</isNotEmpty>
+			
+		</dynamic>
+		
+		<![CDATA[
+	          GROUP BY id
+	          ORDER  BY ord.ctime desc
+	    ]]>
+		<dynamic prepend="">
+			<isNotNull property="start">
+				<isNotNull property="pageSize">
+					limit #start#, #pageSize#
+				</isNotNull>
+			</isNotNull>
+		</dynamic>
+    </select>
+    
+    <select id="exportOrder" parameterClass="order" resultClass="order">
+	    <![CDATA[
+	         SELECT ord.* FROM jyd_order ord  LEFT JOIN jyd_order_item item ON ord.orderNum=item.code  WHERE 1=1
+	    ]]>
+	    
+	   <dynamic>
+	    
+	   		 <isNotEmpty prepend="and" property="userNum">
+	   			ord.orderStatus =#userNum#
+			</isNotEmpty>
+			
+			<isNotEmpty prepend="and" property="customerId">
+	   			ord.payStatus =#customerId#
+			</isNotEmpty>
+			
+	   		<isNotEmpty prepend="and" property="userName">
+	   			item.name like '%$userName$%'
+			</isNotEmpty>
+	    
+	    	<isNotEmpty prepend="and" property="customerName">
+	    		ord.customerName like '%$customerName$%'
+			</isNotEmpty>
+			
+			<isNotEmpty prepend="and" property="startTime">
+				<![CDATA[ord.ctime>=#startTime#]]>
+			</isNotEmpty>
+			
+			<isNotEmpty prepend="and" property="endTime">
+				<![CDATA[ord.ctime <=#endTime#]]>
+			</isNotEmpty>
+			
+			<isNotEmpty prepend="and" property="orderNum">
+				item.code like '$orderNum$%'
+			</isNotEmpty>
+			
+		</dynamic>
+		
+		<![CDATA[
+			  GROUP BY ord.orderNum
+	          ORDER  BY ord.id desc
+	    ]]>
+    </select>
+</sqlMap>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap>
+	<typeAlias alias="sysconfig" type="com.jyd.beans.Sysconfig" />
+	
+	<insert id="insert_sysconfig" parameterClass="sysconfig">
+    <![CDATA[
+         insert jyd_sysconfig(id,num,name,createUserName,createUserNum,createUserShortCode,createUserId)
+         values(#id#,#num#,#name#,#createUserName#,#createUserNum#,#createUserShortCode#,#createUserId#)
+    ]]>
+	</insert>
+	
+	
+	 <select id="associateType" parameterClass="sysconfig" resultClass="sysconfig">
+	    <![CDATA[
+	         SELECT *  FROM jyd_sysconfig  WHERE  num =#num#  and name like '%$name$%' ORDER BY ctime desc limit 0,8
+	    ]]>
+    </select>
+    
+	 <select id="list_sysconfig_byPage" parameterClass="sysconfig" resultClass="sysconfig">
+	    <![CDATA[
+	         SELECT *  FROM jyd_sysconfig  WHERE  1=1
+	    ]]>
+	     <dynamic>
+	    	<isNotEmpty prepend="and" property="name">
+				name  like '%$name$%' 
+			</isNotEmpty>
+		</dynamic>
+			<![CDATA[
+	          ORDER  BY ctime desc
+	    ]]>
+		<dynamic prepend="">
+			<isNotNull property="start">
+				<isNotNull property="pageSize">
+					limit #start#, #pageSize#
+				</isNotNull>
+			</isNotNull>
+		</dynamic>
+    </select>
+    
+     <select id="getSysconfigs" parameterClass="sysconfig" resultClass="sysconfig">
+	    <![CDATA[
+	         SELECT *  FROM jyd_sysconfig  WHERE  num =#num# ORDER BY ctime desc
+	    ]]>
+    </select>
+    
+    <select id="getSysconfigsByNameAndnum" parameterClass="sysconfig" resultClass="sysconfig">
+	    <![CDATA[
+	         SELECT *  FROM jyd_sysconfig  WHERE  num =#num# AND name=#name# LIMIT 1
+	    ]]>
+    </select>
+    
+	 <select id="list_sysconfig_byPage_count" parameterClass="sysconfig" resultClass="int">
+	    <![CDATA[
+	         SELECT sum(1)  FROM jyd_sysconfig  WHERE  1=1
+	    ]]>
+	     <dynamic>
+	    	<isNotEmpty prepend="and" property="name">
+				name  like '%$name$%' 
+			</isNotEmpty>
+		</dynamic>
+    </select>
+    
+	<delete id="del_sysconfig_" parameterClass="sysconfig">
+     <![CDATA[
+	         DELETE FROM  jyd_sysconfig WHERE id= #id# 
+	    ]]>
+	</delete> 
+	
+</sqlMap>

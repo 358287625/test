@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap>
+	<typeAlias alias="customer" type="com.jyd.beans.Customer" />
+	
+    <select id="countallCustomer" resultClass="int">
+	    <![CDATA[
+	         SELECT COUNT(1)  FROM jyd_customer  
+	    ]]>
+    </select>
+    
+     <select id="getCustomerById" parameterClass="customer" resultClass="customer">
+	    <![CDATA[
+	         SELECT *  FROM jyd_customer  WHERE id=#id# 
+	    ]]>
+    </select>
+    
+    <select id="listCustomerByPage_count" parameterClass="customer" resultClass="int">
+	    <![CDATA[
+	         SELECT COUNT(1)  FROM jyd_customer  WHERE status =0
+	    ]]>
+	    
+	    <dynamic>
+			<isNotEmpty prepend="and" property="name">
+				(name like '%$name$%' OR  phone like '%$name$%'  OR companyName  like '%$name$%' OR
+				address like '%$name$%')
+			</isNotEmpty>
+		</dynamic>
+    </select>
+    
+    <select id="getCustomerByCustomer" parameterClass="customer" resultClass="customer">
+	    <![CDATA[
+	         SELECT *  FROM jyd_customer  WHERE status =0
+	    ]]>
+	    
+	    <dynamic>
+			<isNotEmpty prepend="and" property="name">
+				name =#name#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="companyName">
+				companyName =#companyName#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="phone">
+				phone =#phone#
+			</isNotEmpty>
+		</dynamic>
+    </select>
+    
+    
+      <select id="getLikeCustomerByCustomer" parameterClass="customer" resultClass="customer">
+	    <![CDATA[
+	         SELECT *  FROM jyd_customer  WHERE status =0
+	    ]]>
+	    
+	    <dynamic>
+			<isNotEmpty prepend="AND" property="name">
+				name LIKE '%$name$%' 
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="companyName">
+				companyName LIKE '%$companyName$%' 
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="phone">
+				phone LIKE '%$phone$%' 
+			</isNotEmpty>
+		</dynamic>
+		
+		 <![CDATA[
+	         LIMIT  8
+	    ]]>
+    </select>
+    
+	 <select id="listCustomerByPage" parameterClass="customer" resultClass="customer">
+	    <![CDATA[
+	         SELECT *  FROM jyd_customer  WHERE status =0
+	    ]]>
+	    
+	    <dynamic>
+			<isNotEmpty prepend="and" property="name">
+				(name like '%$name$%' OR  phone like '%$name$%'  OR companyName  like '%$name$%' OR
+				address like '%$name$%')
+			</isNotEmpty>
+		</dynamic>
+		
+		<![CDATA[
+	          ORDER  BY id desc
+	    ]]>
+		<dynamic prepend="">
+			<isNotNull property="start">
+				<isNotNull property="pageSize">
+					limit #start#, #pageSize#
+				</isNotNull>
+			</isNotNull>
+		</dynamic>
+    </select>
+    
+    
+    <delete id="del_customer" parameterClass="customer">
+     <![CDATA[
+	         update jyd_customer  SET status =1 WHERE id= #id# 
+	    ]]>
+	</delete> 
+	
+  
+	<insert id="insert_customer" parameterClass="customer">
+	    <![CDATA[
+	         insert jyd_customer(id,shortCode,num,name,companyName,phone,address,createUserName,createUserNum,createUserShortCode,createUserId)
+	         values(#id#,#shortCode#,#num#,#name#,#companyName#,#phone#,#address#,#createUserName#,#createUserNum#,#createUserShortCode#,#createUserId#)
+	    ]]>
+	</insert>
+	
+	<update id="edit_customer" parameterClass="customer">
+    <![CDATA[
+         update jyd_customer  set shortCode=#shortCode#, name=#name#,companyName=#companyName#,phone=#phone#,address=#address# where id=#id# 
+    ]]>
+	</update>
+</sqlMap>
